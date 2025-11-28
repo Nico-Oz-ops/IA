@@ -1,0 +1,22 @@
+[
+  {"EmployeeId": 1, "Name": "Smith, John", "Department": "HR", "Salary": 55000, "Age": 28, "Gender": "male"},
+  {"EmployeeId": 2, "Name": "Doe, Jane", "Department": "IT", "Salary": 65000, "Age": 34, "Gender": "femlae"},
+  {"EmployeeId": 3, "Name": "Brown, Mike", "Department": "Finance", "Salary": 70000, "Age": 42, "Gender": "male"},
+  {"EmployeeId": 4, "Name": "Davis, Emily", "Department": "IT", "Salary": "?", "Age": 29, "Gender": "female"},
+  {"EmployeeId": 5, "Name": "Wilson, Anna", "Department": "HR", "Salary": 48000, "Age": 300, "Gender": "femlae"},
+  {"EmployeeId": 6, "Name": "Taylor, Robert", "Department": "Finance", "Salary": 72000, "Age": null, "Gender": "male"},
+  {"EmployeeId": 7, "Name": "Lee, Kevin", "Department": "IT", "Salary": 67000, "Age": 38, "Gender": "mael"},
+  {"EmployeeId": 8, "Name": "White, Laura", "Department": "HR", "Salary": 52000, "Age": 26, "Gender": "female"},
+  {"EmployeeId": 9, "Name": "Harris, Brian", "Department": "Finance", "Salary": "?", "Age": 45, "Gender": "male"},
+  {"EmployeeId": 10, "Name": "Martin, Lucy", "Department": "IT", "Salary": 69000, "Age": null, "Gender": "female"},
+  {"EmployeeId": 11, "Name": "Clark, James", "Department": "HR", "Salary": 51000, "Age": 32, "Gender": "male"},
+  {"EmployeeId": 12, "Name": "Lewis, Amy", "Department": "Finance", "Salary": 73000, "Age": 40, "Gender": "femael"},
+  {"EmployeeId": 13, "Name": "Robinson, Daniel", "Department": "IT", "Salary": 68000, "Age": 37, "Gender": "male"},
+  {"EmployeeId": 14, "Name": "Walker, Chloe", "Department": "HR", "Salary": 50000, "Age": 28, "Gender": "female"},
+  {"EmployeeId": 15, "Name": "Hall, Kevin", "Department": "Finance", "Salary": 75000, "Age": "?", "Gender": "male"},
+  {"EmployeeId": 16, "Name": "Allen, Sophie", "Department": "IT", "Salary": 66000, "Age": 35, "Gender": "femlae"},
+  {"EmployeeId": 17, "Name": "Young, Mark", "Department": "HR", "Salary": 54000, "Age": null, "Gender": "male"},
+  {"EmployeeId": 18, "Name": "King, Olivia", "Department": "Finance", "Salary": 71000, "Age": 41, "Gender": "female"},
+  {"EmployeeId": 19, "Name": "Wright, Paul", "Department": "IT", "Salary": 68000, "Age": 36, "Gender": "male"},
+  {"EmployeeId": 20, "Name": "Scott, Emma", "Department": "HR", "Salary": 49000, "Age": 27, "Gender": "femael"}
+]
