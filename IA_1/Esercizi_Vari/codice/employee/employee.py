@@ -269,7 +269,6 @@ df_merge_salary = df.merge(df_salary_info, left_on="EmployeeId", right_on="EmpID
 # .loc[lambda x: ...] filtra direttamente senza creare variabile intermedia
 print()
 
-
 # ESERCIZIO 4
 
 # Tema: Right join
@@ -295,7 +294,6 @@ df_missing_employee_office = df.merge(
 
 print()
 
-
 # ESERCIZIO 5
 
 # Tema: Merge One-to-Many
@@ -312,9 +310,17 @@ print()
 #   Ottieni così, per ogni dipendente, tutti i progetti a cui partecipa.
 #   Ordina per EmployeeID e Project.
 
+# creo dataframe df_projects
+df_projects = pd.DataFrame({
+    "EmpID": [1, 1, 2, 3, 5, 7, 7],
+    "Project": ["Alpha", "Beta", "Alpha", "Gamma", "Delta", "Alpha", "Omega"]
+})
+print("Esercizio 5")
+df_prog_dip = df.merge(df_projects, left_on="EmployeeId", right_on="EmpID", how="left", validate="one_to_many").drop(columns="EmpID")
+df_prog_dip_ord = df_prog_dip.sort_values(["EmployeeId", "Project"])
+print(df_prog_dip_ord[["EmployeeId", "Name", "Project"]])
 
-
-
+print()
 
 # ESERCIZIO 6
 
@@ -333,6 +339,9 @@ print()
 #       - solo nelle sedi
 #       - solo nel file salary_info
 #       - in entrambi.
+
+df_merge_offices_salary = pd.merge(df_offices, df_salary_info, left_on="EmployeeID", right_on="EmpID", how="outer", indicator=True).drop(columns="EmpID")
+print(df_merge_offices_salary[["_merge", "EmployeeID", "Office", "SalaryLevel"]])
 
 
 
