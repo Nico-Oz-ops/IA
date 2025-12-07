@@ -116,47 +116,33 @@ class DataPipeline:
         # print(df_agg_2)
         # print(df_agg_3)
 
-        # plt.subplot(1, 3, 1)
-        # # plt.barh(y=df_agg_3.index.astype(str), width=df_agg_3['min_age'])
-        # plt.bar(x=df_agg_3.index.astype(str), height=df_agg_3['min_age'])
-        # plt.title('Età Minima per Attività')
-        # plt.ylabel('Età')
-        # plt.xlabel('Attività')        
+        plt.subplot(1, 3, 1)
+        # plt.barh(y=df_agg_3.index.astype(str), width=df_agg_3['min_age'])
+        plt.bar(x=df_agg_3.index.astype(str), height=df_agg_3['min_age'])
+        plt.title('Età Minima per Attività')
+        plt.ylabel('Età')
+        plt.xlabel('Attività')        
         
-        # plt.subplot(1, 3, 2)
-        # colors_list = ['gold', 'yellowgreen', 'lightcoral']
-        # plt.bar(x=df_agg_2.index.astype(str), height=df_agg_2['mean_fare'], color=colors_list)
-        # plt.title('Tariffa Media vs. Orario di Pasto')
-        # plt.ylabel('Tariffa')
-        # plt.xlabel('Orario di Pasto')
+        plt.subplot(1, 3, 2)
+        colors_list = ['gold', 'yellowgreen', 'lightcoral']
+        plt.bar(x=df_agg_2.index.astype(str), height=df_agg_2['mean_fare'], color=colors_list)
+        plt.title('Tariffa Media vs. Orario di Pasto')
+        plt.ylabel('Tariffa')
+        plt.xlabel('Orario di Pasto')
         
-        # plt.subplot(1, 3, 3)
-        # # plt.bar(x=df_agg_1.index.astype(str), height=df_agg_1['deck_count'])       
-        # # plt.title('Preferenze Ponte')
-        # # plt.ylabel('Numero di Passeggeri')
-        # # plt.xlabel('Ponte Preferito')
-        # df_agg_1['deck_count'].plot(kind='pie',
-        #                     autopct='%1.1f%%', # aggiungi le percentuali
-        #                     startangle=90,     # Angolo iniziale a 90°     
-        #                     ) 
+        plt.subplot(1, 3, 3)
+        # plt.bar(x=df_agg_1.index.astype(str), height=df_agg_1['deck_count'])       
         # plt.title('Preferenze Ponte')
-        # plt.ylabel('')
-        # plt.axis('equal') # rende il pie chart un cerchio 
+        # plt.ylabel('Numero di Passeggeri')
+        # plt.xlabel('Ponte Preferito')
+        df_agg_1['deck_count'].plot(kind='pie',
+                            autopct='%1.1f%%', # aggiungi le percentuali
+                            startangle=90,     # Angolo iniziale a 90°     
+                            ) 
+        plt.title('Preferenze Ponte')
+        plt.ylabel('')
+        plt.axis('equal') # rende il pie chart un cerchio        
         
-        plt.subplot(1, 2, 1)
-        plt.bar(x=df.index.astype(str), height=df['Fare'])
-        plt.title('Tariffa per passeggero')
-        plt.ylabel('Valore')
-        plt.xlabel('PassengerId')
-        
-        plt.subplot(1, 2, 2)
-        count, bin_edges = np.histogram(df['Fare'])        
-        df['Fare'].plot(kind='hist', xticks=bin_edges)
-        plt.title('Tariffe passeggeri')
-        plt.ylabel('Frequenza')
-        plt.xlabel('Valore') 
- 
-        plt.tight_layout()           
         plt.savefig(self.config.output_plot)
         plt.show()
         plt.close()
