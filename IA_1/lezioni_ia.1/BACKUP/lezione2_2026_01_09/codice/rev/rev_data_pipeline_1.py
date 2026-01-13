@@ -54,6 +54,7 @@ class DataPipeline:
         # big_eu =  df.loc[['Italy','France','Germany'] , self.years]
         # plt.subplots(figsize=(20, 12))
         # big_eu.transpose().plot()
+        
         # # Andamento fatturato per decadi (es. 95-04, 05-14, 15-24)
         # df_first_dec = df.loc[:, self.first_decade]
         # # print(df_first_dec)

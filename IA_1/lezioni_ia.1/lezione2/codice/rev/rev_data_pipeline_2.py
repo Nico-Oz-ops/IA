@@ -32,7 +32,7 @@ class DataPipeline:
         """Operazioni varie di pulizia e pre-processamento dati"""
         # # ESERCIZI
         # Aggiungere al dataset una colonna 'Total" contenente il fatturato totale prodotto da ogni nazione in tutti i 30 anni 
-        df['Total'] = df.select_dtypes(include=np.number).sum(axis=1)       
+        df['Total'] = df.select_dtypes(include=np.number).sum(axis=1)     
         return df
 
     def visualize_plot(self, df_in: pd.DataFrame) -> None:        
@@ -214,15 +214,15 @@ class DataPipeline:
         """Crea e visualizza un Area plot"""
         df = df_in.reset_index(drop=True).copy()
         
-        df.sort_values(['Total'], ascending=False, axis=0, inplace=True)
-        df.index = df['Country']
-        df_top5 = df.head(5)
-        print(df_top5)
-        df_top5 = df_top5[self.years].transpose() 
-        # print(df_top5.head())
+        # df.sort_values(['Total'], ascending=False, axis=0, inplace=True)
+        # df.index = df['Country']
+        # df_top5 = df.head(5)
+        # print(df_top5)
+        # df_top5 = df_top5[self.years].transpose() 
+        # # print(df_top5.head())
         
-        # SOLUZIONE "pandas only"
-        df_top5.plot(kind="area", figsize=(14, 8)).get_figure().savefig(self.config.output_plot_area)
+        # # SOLUZIONE "pandas only"
+        # df_top5.plot(kind="area", figsize=(14, 8)).get_figure().savefig(self.config.output_plot_area)
         
         # # SOLUZIONE "pandas+Artist"
         # # ax = df_top5.plot(kind='area', alpha=0.35, figsize=(20, 9))
@@ -240,8 +240,34 @@ class DataPipeline:
         # 1) Mostra il fatturato cumulativo anno per anno nei 30 anni coi diversi contributi SOLO delle prime 
         #    5 sottoregioni per fatturato totale dei tre anni 1999, 2000, 2001
         # 2) Confronta il fatturato cumulativo calcolato come al punto uno per il triennio 1995, 1996, 1997 ed 
-        #    il triennio 2022, 2023, 2024. Cosa osservi?
-
+        #    il triennio 2022, 2023, 2024. Cosa osservi? Risp. East Asia, Northern America reggono, Western Europe perde,
+        #    Northern Europe e Southern Europe sono soppiantati da Middle East e Southeast Asia   
+        df_sr = df.groupby('SubRegion')[self.years].sum()
+        print(df_sr)
+        # df_sr_3_years = df.groupby(['SubRegion'])[['1999', '2000', '2001']].sum() # Opz.1 
+        # df_sr_3_years = df.groupby(['SubRegion']).agg({'1999': 'sum', '2000': 'sum', '2001': 'sum'}) # Opz.2        
+        df_sr_3_years = df.groupby(['SubRegion']).agg({'1995': 'sum', '1996': 'sum', '1997': 'sum'})        
+        # df_sr_3_years = df.groupby(['SubRegion']).agg({'2022': 'sum', '2023': 'sum', '2024': 'sum'})        
+        df_sr_3_years['Total'] = df_sr_3_years.select_dtypes(include=np.number).sum(axis=1) 
+        df_sr_3_years.sort_values(['Total'], ascending=False, axis=0, inplace=True)
+        df_sr_3_years_top5 = df_sr_3_years.head()
+        print(df_sr_3_years_top5)
+        df_sr_top5 = df_sr[df_sr.index.isin(df_sr_3_years_top5.index)]
+        print(df_sr_top5)
+        df_sr_top5 = df_sr_top5.transpose()
+        df_sr_top5.plot(kind="area", figsize=(14, 8))
+        # df_sr_top5.plot(kind='area', alpha=0.10, stacked=False, figsize=(20, 9))
+        # title = "Fatturato: prime 5 sottoregioni per importo totale (anni 1999-2001) - cl" if self.config.csv_path.__contains__("cl") else "Fatturato: prime 5 sottoregioni per importo totale (anni 1999-2001) - ds"
+        title = "Fatturato: prime 5 sottoregioni per importo totale (anni 1995-1997) - cl" if self.config.csv_path.__contains__("cl") else "Fatturato: prime 5 sottoregioni per importo totale (anni 1995-1997) - ds"
+        # title = "Fatturato: prime 5 sottoregioni per importo totale (anni 2022-2024) - cl" if self.config.csv_path.__contains__("cl") else "Fatturato: prime 5 sottoregioni per importo totale (anni 2022-2024) - ds"
+        ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
+        plt.title(title)
+        plt.ylabel(ylabel)
+        plt.xlabel('Anni')  
+        plt.savefig(self.config.output_plot_area)        
+        plt.show()
+        plt.close()  
+        
         print("      -Area plot salvato e mostrato") 
         
     def visualize_hist(self, df_in: pd.DataFrame) -> None:      
@@ -256,26 +282,40 @@ class DataPipeline:
         # # df['2024'].plot(kind='hist', figsize=(8, 5))
         # df['2024'].plot(kind='hist', figsize=(8, 5), xticks=bin_edges, color='green')
               
-        fig, ax = plt.subplots(figsize=(8, 5))
-        bars = ax.hist(df['2024'], bins=10, color='green', edgecolor='white')
-        # print(type(bars))
-        # print(bars)
-        print(bars[1])
-        print(bars[2])
-        plt.bar_label(bars[2], fontsize=10, color='navy')
-        # plt.xticks(bars[1])
-        plt.xticks(bars[1], rotation=45)
+        # fig, ax = plt.subplots(figsize=(8, 5))
+        # bars = ax.hist(df['2024'], bins=10, color='green', edgecolor='white')
+        # # print(type(bars))
+        # # print(bars)
+        # print(bars[1])
+        # print(bars[2])
+        # plt.bar_label(bars[2], fontsize=10, color='navy')
+        # # plt.xticks(bars[1])
+        # plt.xticks(bars[1], rotation=45)
         
         # # ESERCIZI
         # 1) Scrivere il codice per generare gli istogrammi delle slide 13, 14, 15 in IA.1_Lezione2.3.pdf 
         # 2) Cambiare paesi, osservare i diversi trend e rifletterci un po' su 
-
-        title = "Fatturato da tutti i paesi nel 2024 - cl" if self.config.csv_path.__contains__("cl") else "Fatturato da tutti i paesi nel 2024 - ds"
-        xlabel = "Fatturato (milioni di USD)" if self.config.csv_path.__contains__("cl") else "Fatturato (USD)" 
+        df.index = df['Country']
+        df_t = df.loc[['Italy'], self.years].transpose()
+        count, bin_edges = np.histogram(df_t, 15)
+        df_t.plot(kind ='hist', 
+                  figsize=(10, 6),
+                  bins=15,
+                  alpha=0.6, # trasparenza per effetto "Unstacked" 
+                  xticks=bin_edges,
+                  color=['coral', 'darkslateblue', 'mediumseagreen']
+                 ) 
+        title = "Fatturato da tre paesi tra il 1995 ed il 2024 - cl" if self.config.csv_path.__contains__("cl") else "Fatturato da tre paesi tra il 1995 ed il 2024 - ds" 
         plt.title(title)
-        plt.ylabel('Numero di Paesi') 
-        plt.xlabel(xlabel)  
-        plt.tight_layout()       
+        plt.xticks(rotation=45)
+        plt.ylabel('Numero di Anni')
+
+        # title = "Fatturato da tutti i paesi nel 2024 - cl" if self.config.csv_path.__contains__("cl") else "Fatturato da tutti i paesi nel 2024 - ds"
+        # xlabel = "Fatturato (milioni di USD)" if self.config.csv_path.__contains__("cl") else "Fatturato (USD)" 
+        # plt.title(title)
+        # plt.ylabel('Numero di Paesi') 
+        # plt.xlabel(xlabel)  
+        # plt.tight_layout()       
 
         plt.savefig(self.config.output_plot_hist)        
         plt.show()
@@ -287,63 +327,65 @@ class DataPipeline:
         """Crea e visualizza un Box plot"""
         df = df_in.reset_index(drop=True).copy() 
 
-        df.set_index('Country', inplace=True)
-        country_name = "India"
-        country = df.loc[country_name, self.years]
-        print(country)
-        country = pd.DataFrame(df.loc[country_name, self.years])
-        country[[country_name]] = country[[country_name]].astype("float")       
+        # df.set_index('Country', inplace=True)
+        # country_name = "India"
+        # country = df.loc[country_name, self.years]
         # print(country)
-        print()
-        print(country.describe())
-        country = country.reset_index()
-        country_outlier_up_value = country.describe().loc['75%'][country_name] + 1.5 * (country.describe().loc['75%'][country_name] - country.describe().loc['25%'][country_name])
-        print()
-        print("Q3 + 1.5*IQR = " + str(country_outlier_up_value))
-        print()
-        print("Upper whisker (baffo superiore): " + str(country[country[country_name] < country_outlier_up_value][country_name].max()))
-        print()
-        country.plot(kind='box', figsize=(10, 6))
-        title = "Fatturato " + str(country_name) + " - cl" if self.config.csv_path.__contains__("cl") else "Fatturato " + str(country_name) + " - ds"
-        plt.title(title)
-        
-        # df_top = df.sort_values(['Total'], ascending=False, axis=0).head(15)
-        # print(df_top["Country"])
-        # df_first_dec = df_top.loc[:, self.first_decade].sum(axis=1) 
-        # df_second_dec = df_top.loc[:, self.second_decade].sum(axis=1) 
-        # df_third_dec = df_top.loc[:, self.third_decade].sum(axis=1)         
-        # new_df = pd.DataFrame({'95-04': df_first_dec, '05-14': df_second_dec, '15-24':df_third_dec}) 
-        # print(new_df)
-        # print(new_df.describe())
-        # # # print(new_df.head())
-        # outlier_up_value_first_dec = new_df.describe().loc['75%']['95-04'] + 1.5 * (new_df.describe().loc['75%']['95-04'] - new_df.describe().loc['25%']['95-04'])
-        # # print(outlier_up_value_first_dec)
-        # outlier_up_value_second_dec = new_df.describe().loc['75%']['05-14'] + 1.5 * (new_df.describe().loc['75%']['05-14'] - new_df.describe().loc['25%']['05-14'])
-        # # print(outlier_up_value_second_dec)  
-        # outlier_up_value_third_dec = new_df.describe().loc['75%']['15-24'] + 1.5 * (new_df.describe().loc['75%']['15-24'] - new_df.describe().loc['25%']['15-24'])
-        # # print(outlier_up_value_third_dec)
+        # country = pd.DataFrame(df.loc[country_name, self.years])
+        # country[[country_name]] = country[[country_name]].astype("float")       
+        # # print(country)
         # print()
-        # print("Q3 + 1.5*IQR") 
-        # print("       " + str(outlier_up_value_first_dec.round(3)))
-        # print("                    " + str(outlier_up_value_second_dec.round(3)))
-        # print("                                 " + str(outlier_up_value_third_dec.round(3)))
-
- 
-        # new_df.plot(kind='box', figsize=(10, 6))
-        # title = "Fatturato dalle prime 15 nazioni nei decenni 95-04, 05-14 e 15-24 - cl" if self.config.csv_path.__contains__("cl") else "Fatturato dalle prime 15 nazioni nei decenni 95-04, 05-14 e 15-24 - ds"
+        # print(country.describe())
+        # country = country.reset_index()
+        # country_outlier_up_value = country.describe().loc['75%'][country_name] + 1.5 * (country.describe().loc['75%'][country_name] - country.describe().loc['25%'][country_name])
+        # print()
+        # print("Q3 + 1.5*IQR = " + str(country_outlier_up_value))
+        # print()
+        # print("Upper whisker (baffo superiore): " + str(country[country[country_name] < country_outlier_up_value][country_name].max()))
+        # print()
+        # country.plot(kind='box', figsize=(10, 6))
+        # title = "Fatturato " + str(country_name) + " - cl" if self.config.csv_path.__contains__("cl") else "Fatturato " + str(country_name) + " - ds"
         # plt.title(title)
+        
+        df_top = df.sort_values(['Total'], ascending=False, axis=0).head(15)
+        print(df_top["Country"])
+        df_first_dec = df_top.loc[:, self.first_decade].sum(axis=1) 
+        df_second_dec = df_top.loc[:, self.second_decade].sum(axis=1) 
+        df_third_dec = df_top.loc[:, self.third_decade].sum(axis=1)         
+        new_df = pd.DataFrame({'95-04': df_first_dec, '05-14': df_second_dec, '15-24':df_third_dec}) 
+        print(new_df)
+        print(new_df.describe())
+        # # print(new_df.head())
+        outlier_up_value_first_dec = new_df.describe().loc['75%']['95-04'] + 1.5 * (new_df.describe().loc['75%']['95-04'] - new_df.describe().loc['25%']['95-04'])
+        # print(outlier_up_value_first_dec)
+        outlier_up_value_second_dec = new_df.describe().loc['75%']['05-14'] + 1.5 * (new_df.describe().loc['75%']['05-14'] - new_df.describe().loc['25%']['05-14'])
+        # print(outlier_up_value_second_dec)  
+        outlier_up_value_third_dec = new_df.describe().loc['75%']['15-24'] + 1.5 * (new_df.describe().loc['75%']['15-24'] - new_df.describe().loc['25%']['15-24'])
+        # print(outlier_up_value_third_dec)
+        print()
+        print("Q3 + 1.5*IQR") 
+        print("       " + str(outlier_up_value_first_dec.round(3)))
+        print("                    " + str(outlier_up_value_second_dec.round(3)))
+        print("                                 " + str(outlier_up_value_third_dec.round(3)))
+
+        new_df.plot(kind='box', figsize=(10, 6))
+        title = "Fatturato dalle prime 15 nazioni nei decenni 95-04, 05-14 e 15-24 - cl" if self.config.csv_path.__contains__("cl") else "Fatturato dalle prime 15 nazioni nei decenni 95-04, 05-14 e 15-24 - ds"
+        plt.title(title)
        
-        # new_df = new_df.reset_index()
-        # print(new_df)
-        # filter_series_95_04 = new_df[new_df['95-04'] > outlier_up_value_first_dec]["index"]
-        # filtered_df_95_04 = df_top.loc[df_top.index.isin(filter_series_95_04.values)][["Country"]]
-        # print(filtered_df_95_04)
-        # filter_series_05_14 = new_df[new_df['05-14'] > outlier_up_value_second_dec]["index"]
-        # filtered_df_05_14 = df_top.loc[df_top.index.isin(filter_series_05_14.values)][["Country"]]
-        # print(filtered_df_05_14)        
-        # filter_series_15_24 = new_df[new_df['15-24'] > outlier_up_value_third_dec]["index"]
-        # filtered_df_15_24 = df_top.loc[df_top.index.isin(filter_series_15_24.values)][["Country"]]
-        # print(filtered_df_15_24)      
+        new_df = new_df.reset_index()
+        print(new_df)
+        filter_series_95_04 = new_df[new_df['95-04'] > outlier_up_value_first_dec]["index"]
+        filtered_df_95_04 = df_top.loc[df_top.index.isin(filter_series_95_04.values)][["Country"]]
+        print(">>> Outliers 95-04")
+        print(filtered_df_95_04)
+        filter_series_05_14 = new_df[new_df['05-14'] > outlier_up_value_second_dec]["index"]
+        filtered_df_05_14 = df_top.loc[df_top.index.isin(filter_series_05_14.values)][["Country"]]
+        print(">>> Outliers 05-14")
+        print(filtered_df_05_14)        
+        filter_series_15_24 = new_df[new_df['15-24'] > outlier_up_value_third_dec]["index"]
+        filtered_df_15_24 = df_top.loc[df_top.index.isin(filter_series_15_24.values)][["Country"]]
+        print(">>> Outliers 15-24")
+        print(filtered_df_15_24)      
         
         plt.savefig(self.config.output_plot_box)
         plt.show()
@@ -384,6 +426,7 @@ class DataPipeline:
         df_tot.columns = ['year', 'total']
         # print(df_tot)
 
+        # SOLUZIONE 1        
         plt.figure(figsize=(10, 6))
         # df_tot.plot(kind='scatter', x='year', y='total', color='darkblue')
         plt.scatter(df_tot['year'], df_tot['total'], color='darkblue')
@@ -394,6 +437,7 @@ class DataPipeline:
         plt.ylabel(ylabel)
         plt.xticks(rotation=45)
 
+        # # SOLUZIONE 2 (Uso Artist Layer)  
         # fig, ax = plt.subplots()
         # # ax = df_tot.plot(kind='scatter', x='year', y='total', color='darkblue')
         # ax.scatter(df_tot['year'], df_tot['total'], color='darkblue')
@@ -403,7 +447,8 @@ class DataPipeline:
         # ax.set_xlabel('Anno')
         # ax.set_ylabel(ylabel)  
         # plt.xticks(rotation=45)
-
+        
+        # # SOLUZIONE 3 (Uso Seaborn)  
         # df_tot = add_columns(df_tot)   
         # # print(df_tot) 
         # plt.figure(figsize=(10, 6))
@@ -415,7 +460,7 @@ class DataPipeline:
         # plt.ylabel(ylabel)
         # plt.xticks(rotation=45)
         
-        # # Fit linear regressions 
+        # # Fit linear regressions (mostrare con SOLUZIONE 1) 
         # x = df_tot['year']
         # y = df_tot['total']   
         # coefficients = np.polyfit(x, y, 1)
@@ -491,10 +536,10 @@ class DataPipeline:
         # self.visualize_plot(df_rev)
         # self.visualize_bar(df_rev)
         # self.visualize_pie(df_rev)
-        self.visualize_area(df_rev)
-        self.visualize_hist(df_rev)
+        # self.visualize_area(df_rev)
+        # self.visualize_hist(df_rev)
         # self.visualize_boxplot(df_rev)
-        # self.visualize_scatter(df_rev) 
+        self.visualize_scatter(df_rev) 
         # self.visualize_data(df_rev)        
         print("   -Terminata visualizzazione risultati di analisi")        
         self.data = df_rev
