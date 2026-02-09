@@ -60,6 +60,7 @@ class DataPipeline:
         #       delle prime 10 ed ultime 5 righe   
         print(df.dtypes)
         selezione_colonne = df[["Age", "Fare", "Sex"]]
+        print(df[["Age", "Fare", "Sex"]].head(10))
         print(selezione_colonne.head(10))
         print(selezione_colonne.tail())
 
@@ -87,6 +88,10 @@ class DataPipeline:
         # versione con inplace=True
         df["Age"].replace(np.nan, eta_media, inplace=True)
         df["Fare"].replace(np.nan, fare_medio, inplace=True)
+
+        # versione con fillna
+        df["Age"] = df["Age"].fillna(eta_media)
+        df["Fare"] = df["Fare"].fillna(fare_medio) # dove trova valori NaN vengo rimpiazzati dal valore che passo all'interno del metodo fillna
 
         # Correzione di errori per contenuti standard
         # ESERCIZIO 6 

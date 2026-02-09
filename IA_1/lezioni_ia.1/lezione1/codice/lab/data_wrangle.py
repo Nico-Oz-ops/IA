@@ -52,7 +52,7 @@ df[["normalized-losses"]] = df[["normalized-losses"]].astype("int")
 df[["price"]] = df[["price"]].astype("float")
 print(df.dtypes)
 
-# Normalizzazione dei dati
+# Normalizzazione dei dati - La normalizzazione rende il confronto equo.
 df['length'] = (df['length']-df['length'].min())/(df['length'].max() - df['length'].min())
 # print(df)
 # print("\n")
@@ -60,8 +60,8 @@ df['length'] = (df['length']-df['length'].min())/(df['length'].max() - df['lengt
 # Correzione "typos"
 df['make'] = df['make'].replace({'alfa-romero': 'alfa-romeo'})
 
-# # Limita gli outliers
-# df['price'] = df['price'].clip(lower=15000, upper=20000)
+# Limita gli outliers
+df['price'] = df['price'].clip(lower=15000, upper=20000)
 
 print(df)
 print("\n")

@@ -87,21 +87,21 @@ class DataPipeline:
         df_agg = df.groupby('make').agg(mean_price=('price', 'mean'))
         plt.bar(x=df_agg.index.astype(str), height=df_agg['mean_price'], color='green')
        
-        # # ESEMPIO 2 - Prezzo Medio Decrescente
-        # df_agg = df.groupby('make').agg(mean_price=('price', 'mean'))
-        # df_agg_mean_down = df_agg.sort_values(by='mean_price', ascending=False).head()
-        # plt.bar(x=df_agg_mean_down.index.astype(str), height=df_agg_mean_down['mean_price'], color='orange')
+        # ESEMPIO 2 - Prezzo Medio Decrescente
+        df_agg = df.groupby('make').agg(mean_price=('price', 'mean'))
+        df_agg_mean_down = df_agg.sort_values(by='mean_price', ascending=False).head()
+        plt.bar(x=df_agg_mean_down.index.astype(str), height=df_agg_mean_down['mean_price'], color='orange')
         
-        # # ESEMPIO 3 - Prezzo Medio Colorato
-        # df_agg = df.groupby('make').agg(mean_price=('price', 'mean'))
-        # bar_colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green', 'tab:purple']
-        # plt.bar(x=df_agg.index.astype(str), height=df_agg['mean_price'], color=bar_colors)
+        # ESEMPIO 3 - Prezzo Medio Colorato
+        df_agg = df.groupby('make').agg(mean_price=('price', 'mean'))
+        bar_colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green', 'tab:purple']
+        plt.bar(x=df_agg.index.astype(str), height=df_agg['mean_price'], color=bar_colors)
         
-        # # ESEMPIO 4 - Prezzo Medio Colorato Decrescente Top 5
-        # df_agg = df.groupby('make').agg(mean_price=('price', 'mean'))
-        # df_agg_mean_down = df_agg.sort_values(by='mean_price', ascending=False).head()
-        # bar_colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green', 'tab:purple']
-        # plt.bar(x=df_agg_mean_down.head().index.astype(str), height=df_agg_mean_down.head()['mean_price'], color=bar_colors)
+        # ESEMPIO 4 - Prezzo Medio Colorato Decrescente Top 5
+        df_agg = df.groupby('make').agg(mean_price=('price', 'mean'))
+        df_agg_mean_down = df_agg.sort_values(by='mean_price', ascending=False).head()
+        bar_colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green', 'tab:purple']
+        plt.bar(x=df_agg_mean_down.head().index.astype(str), height=df_agg_mean_down.head()['mean_price'], color=bar_colors)
         
         plt.title('Prezzo Medio Auto per Marca')
         plt.ylabel('Prezzo Medio')

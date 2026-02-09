@@ -3,22 +3,22 @@ import numpy as np
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
-class DataSourceConfig:
+class DataSourceConfig: # classe che permette la configurazione delle sorgenti e destinazione output
     """Configurazione sorgenti dati e destinazione output"""
     remote_url: str = "https://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.data"
     db_uri: str = "postgresql+psycopg://postgres:postgres@postgresql:5432/auto_db"
-    csv_path: str = "../../dati/autos/auto.csv"
-    csv_clean_path: str = "../../dati/autos/auto_clean.csv"
-    output_plot: str = "../../visual/autos/plot.png"
+    csv_path: str = "../../dati/autos/auto.csv" # creo il percorso di salvataggio del file csv con i dati grezzi
+    csv_clean_path: str = "../../dati/autos/auto_clean.csv" # percorso di salvataggio del file csv con i dati puliti
+    output_plot: str = "../../visual/autos/plot.png" # percorso di salvataggio dei plot dei dati puliti
 
-class DataPipeline:
+class DataPipeline: # classe inizializzata con istanza di DSC, permette di caricare, salvare, pulire e visualizzare i dati 
     def __init__(self, config: DataSourceConfig):
         self.config = config
         self.data = None
         
-    def load_from_csv(self) -> pd.DataFrame:
+    def load_from_csv(self) -> pd.DataFrame: # carica i dati CSV tramite il suo percorso definito in DSC
         """Carica dati da un file CSV"""
-        return pd.read_csv(self.config.csv_path)        
+        return pd.read_csv(self.config.csv_path)       
 
     def load_from_remote(self) -> pd.DataFrame:
         """Carica dati da un file remoto identificato da un URL aggiungendo intestazioni"""
@@ -28,27 +28,27 @@ class DataPipeline:
                   "peak-rpm","city-mpg","highway-mpg","price"]
         return pd.read_csv(self.config.remote_url, names = headers)
     
-    def save_on_csv(self, df: pd.DataFrame) -> None:
+    def save_on_csv(self, df: pd.DataFrame) -> None: # metodo che serve a salvare i dati grezzi in un file CSV
         """Salva dati in un file CSV"""
         df.to_csv(self.config.csv_path)    
         
-    def save_clean_on_csv(self, df: pd.DataFrame) -> None:
+    def save_clean_on_csv(self, df: pd.DataFrame) -> None: # metodo che serve a salvare i dati puliti in un file CSV
         """Salva dati puliti in un file CSV"""
         df.to_csv(self.config.csv_clean_path)    
     
-    def store_on_database(self, df: pd.DataFrame) -> None:
+    def store_on_database(self, df: pd.DataFrame) -> None: # serve per scrivere dati in un database PostgreSQL
         """Scrive dati in un database PostgreSQL"""      
         table_name = "auto_info"
-        engine = create_engine(self.config.db_uri)
+        engine = create_engine(self.config.db_uri) # apre la connessione
         try:
             with engine.begin() as conn:  # begin() per gestione automatica di commit/rollback
                 df.to_sql(table_name, con=conn, if_exists='replace', index=False)
-        except SQLAlchemyError as e:
+        except SQLAlchemyError as e: # SQLAlchemy serve a fare da ponte tra Python e PostgreSQL
             print(f"Error di scrittura in database: {e}")
         finally:
             engine.dispose()  # Chiusura pulita e rilascio risorse
         
-    def load_from_database(self) -> pd.DataFrame:
+    def load_from_database(self) -> pd.DataFrame: # si importano o si caricano dati dal database PostgreSQL
         """Carica dati da un database PostgreSQL"""
         query_def = "SELECT * FROM public.auto_info"        
         engine = create_engine(self.config.db_uri)
@@ -62,21 +62,28 @@ class DataPipeline:
             engine.dispose()  # Chiusura pulita e rilascio risorse
         return df
 
-    def clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    def clean_data(self, df: pd.DataFrame) -> pd.DataFrame: # metodo di pulizia dei dati
         """Operazioni varie di pulizia dati"""
         df.replace("?", np.nan, inplace=True)
-        avg = df["normalized-losses"].astype("float").mean(axis = 0)
-        df["normalized-losses"] = df["normalized-losses"].replace(np.nan, avg)
-        df["num-of-doors"] = df["num-of-doors"].replace(np.nan, df['num-of-doors'].value_counts().idxmax())
-        df.dropna(subset=["price"], axis=0, inplace = True)
-        df.reset_index(drop = True, inplace = True)
-        df = df.convert_dtypes()
+        avg = df["normalized-losses"].astype("float").mean(axis = 0) # df["normalized-losses"].astype("float"): stabilisce il tipo di dato per la colonna stabilita
+        df["normalized-losses"] = df["normalized-losses"].replace(np.nan, avg) # df["normalized-losses"].replace(np.nan, avg, inplace=True)
+        df["num-of-doors"] = df["num-of-doors"].replace(np.nan, df['num-of-doors'].value_counts().idxmax()) # sostituire i valori mancanti NaN nella colonna num-of-doors per il valore più frequente della colonna
+        # num_porte = df['num-of-doors'].value_counts().idxmax() ---> un'altra maniera di sostituire NAN
+        # df["num-of-doors"] = df["num-of-doors"].replace(np.nan, num_porte)
+        # value_counts() → conta
+        # idxmax() → sceglie il valore più frequente
+        # replace() → riempie i buchi (NaN) con quel valore
+        
+        df.dropna(subset=["price"], axis=0, inplace = True) #dropna, cancella tutte le righe della colonna "price", con valori NAN
+        # df.dropna(axis=0, inplace=True) # serve a cancellare tutte le righe del DF che hanno valori NaN
+        df.reset_index(drop = True, inplace = True) # resetta gli indici del dataframe a partire delle modifiche fatte
+        df = df.convert_dtypes() # converte in automatico i tipi di dato del DF (completo)
         df[["normalized-losses"]] = df[["normalized-losses"]].astype("int")
         df[["price"]] = df[["price"]].astype("float")
         df[["peak-rpm"]] = df[["peak-rpm"]].astype("float")
-        df['make'] = df['make'].replace({'alfa-romero': 'alfa-romeo', 'peugot': 'peugeot'})
-        self.save_clean_on_csv(df)
-        return df
+        df['make'] = df['make'].replace({'alfa-romero': 'alfa-romeo', 'peugot': 'peugeot'}) #.replace({"chiave":"valore"})---> chiave = valore da sostituire. valore: valore che sostituisce (quello corretto)
+        self.save_clean_on_csv(df) # richiamo il metodo di salvataggio per i dati puliti in formato CSV pasando il dataframe
+        return df 
 
     def visualize(self, df: pd.DataFrame) -> None:
         """Crea e salva visualizzazioni"""        

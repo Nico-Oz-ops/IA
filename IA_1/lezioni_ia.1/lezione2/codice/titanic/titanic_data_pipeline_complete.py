@@ -55,18 +55,18 @@ class DataPipeline:
     
     def clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """Operazioni varie di pulizia dati"""
-        # print(df.dtypes)
-        # print(df[['Age' ,'Fare', 'preferred_deck', 'dining_time', 'activity', 'Sex']].head(10))
-        # print(df[['Age' ,'Fare', 'preferred_deck', 'dining_time', 'activity', 'Sex']].tail())
+        print(df.dtypes)
+        print(df[['Age' ,'Fare', 'preferred_deck', 'dining_time', 'activity', 'Sex']].head(10))
+        print(df[['Age' ,'Fare', 'preferred_deck', 'dining_time', 'activity', 'Sex']].tail())
 
         # Sostituisce valori nulli/assenti con NaN
         df.replace("?", np.nan, inplace=True)
         
-        # # Quanti NaNs per colonna
-        # missing_data = df.isnull()
-        # for column in missing_data.columns.values.tolist():
-        #     # print(column)
-        #     print (missing_data[column].value_counts())
+        # Quanti NaNs per colonna
+        missing_data = df.isnull()
+        for column in missing_data.columns.values.tolist():
+            # print(column)
+            print (missing_data[column].value_counts())
         
         # Limita gli outliers
         df['Age'] = df['Age'].clip(upper=80)
@@ -107,59 +107,61 @@ class DataPipeline:
     
     def visualize(self, df: pd.DataFrame) -> None:
         """Crea e salva visualizzazioni"""
-        plt.figure(figsize=(24, 12))
-        df_agg_1 = df.groupby('preferred_deck').agg(deck_count=('PassengerId', 'count'))
+        plt.figure(figsize=(24, 12)) # figsize=(larghezza x altezza)
+        df_agg_1 = df.groupby('preferred_deck').agg(deck_count=('PassengerId', 'count')) # df.groupby('colonna_analisi').agg(colonna_nuova=('colonna_utile_per_il_calcolo', 'operazione_utile'))
         df_agg_2 = df.groupby('dining_time').agg(mean_fare=('Fare', 'mean'))
         df_agg_3 = df.groupby('activity').agg(min_age=('Age', 'min'))
-        # print(type(df_agg_1))
-        # print(df_agg_1)
-        # print(df_agg_2)
-        # print(df_agg_3)
+        print(type(df_agg_1)) # <class 'pandas.core.frame.DataFrame'> --conferma che restituisce un tipo DF piuttosto che Series
+        print(df_agg_1)
+        print(df_agg_2)
+        print(df_agg_3)
 
-        # plt.subplot(1, 3, 1)
-        # # plt.barh(y=df_agg_3.index.astype(str), width=df_agg_3['min_age'])
-        # plt.bar(x=df_agg_3.index.astype(str), height=df_agg_3['min_age'])
-        # plt.title('Età Minima per Attività')
-        # plt.ylabel('Età')
-        # plt.xlabel('Attività')        
+        plt.subplot(1, 3, 1) # plt.subplot(n_rows, n_cols, index (posizione del subplot, da sinistra a destra)) --Con plt.subplot(1, 3, 1) disegni nel riquadro [1].
+        plt.barh(y=df_agg_3.index.astype(str), width=df_agg_3['min_age'])
+        plt.bar(x=df_agg_3.index.astype(str), height=df_agg_3['min_age'])
+        plt.title('Età Minima per Attività')
+        plt.ylabel('Età')
+        plt.xlabel('Attività')        
         
-        # plt.subplot(1, 3, 2)
-        # colors_list = ['gold', 'yellowgreen', 'lightcoral']
-        # plt.bar(x=df_agg_2.index.astype(str), height=df_agg_2['mean_fare'], color=colors_list)
-        # plt.title('Tariffa Media vs. Orario di Pasto')
-        # plt.ylabel('Tariffa')
-        # plt.xlabel('Orario di Pasto')
+        plt.subplot(1, 3, 2)
+        colors_list = ['gold', 'yellowgreen', 'lightcoral']
+        plt.bar(x=df_agg_2.index.astype(str), height=df_agg_2['mean_fare'], color=colors_list)
+        plt.title('Tariffa Media vs. Orario di Pasto')
+        plt.ylabel('Tariffa')
+        plt.xlabel('Orario di Pasto')
         
-        # plt.subplot(1, 3, 3)
-        # # plt.bar(x=df_agg_1.index.astype(str), height=df_agg_1['deck_count'])       
-        # # plt.title('Preferenze Ponte')
-        # # plt.ylabel('Numero di Passeggeri')
-        # # plt.xlabel('Ponte Preferito')
-        # df_agg_1['deck_count'].plot(kind='pie',
-        #                     autopct='%1.1f%%', # aggiungi le percentuali
-        #                     startangle=90,     # Angolo iniziale a 90°     
-        #                     ) 
-        # plt.title('Preferenze Ponte')
-        # plt.ylabel('')
-        # plt.axis('equal') # rende il pie chart un cerchio 
+        plt.subplot(1, 3, 3)
+        plt.bar(x=df_agg_1.index.astype(str), height=df_agg_1['deck_count'])       
+        plt.title('Preferenze Ponte')
+        plt.ylabel('Numero di Passeggeri')
+        plt.xlabel('Ponte Preferito')
+
+        # plot Torta - piechart (versione Pandas)
+        df_agg_1['deck_count'].plot(kind='pie', # indica il tipo di diagramma
+                            autopct='%1.1f%%', # aggiungi le percentuali -- 1.1 aggiunge un decimlae, 1.2 ne aggiunge 2
+                            startangle=90,     # Angolo iniziale a 90°     
+                            ) 
+        plt.title('Preferenze Ponte')
+        plt.ylabel('')
+        plt.axis('equal') # rende il pie chart un cerchio 
         
         plt.subplot(1, 2, 1)
-        plt.bar(x=df.index.astype(str), height=df['Fare'])
+        plt.bar(x=df.index.astype(str), height=df['Fare']) # x=df.index.astype(str) per default prende la colonna più a sinistra che è quella che ha l'indice, se faccio: x=df['Age'].astype(int), allora considera come "indice" la colonna specificata da me, senza usar .index
         plt.title('Tariffa per passeggero')
         plt.ylabel('Valore')
         plt.xlabel('PassengerId')
         
         plt.subplot(1, 2, 2)
         count, bin_edges = np.histogram(df['Fare'])        
-        df['Fare'].plot(kind='hist', xticks=bin_edges)
+        df['Fare'].plot(kind='hist', xticks=bin_edges) # plottaggio tipo Pandas
         plt.title('Tariffe passeggeri')
         plt.ylabel('Frequenza')
         plt.xlabel('Valore') 
  
-        plt.tight_layout()           
+        plt.tight_layout() # aggiusta automaticamente gli spazi così non si taglia nulla. Non si sovvrapongono i testi          
         plt.savefig(self.config.output_plot)
         plt.show()
-        plt.close()
+        plt.close() # chiudere una figura di Matplotlib e a liberare memoria
     
     def run_pipeline(self) -> pd.DataFrame:
         """Esegue la pipeline completa"""

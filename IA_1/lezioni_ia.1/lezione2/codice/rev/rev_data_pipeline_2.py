@@ -32,16 +32,18 @@ class DataPipeline:
         """Operazioni varie di pulizia e pre-processamento dati"""
         # # ESERCIZI
         # Aggiungere al dataset una colonna 'Total" contenente il fatturato totale prodotto da ogni nazione in tutti i 30 anni 
-        df['Total'] = df.select_dtypes(include=np.number).sum(axis=1)     
+        df['Total'] = df.select_dtypes(include=np.number).sum(axis=1) # select_dtypes(): seleziona in base ai tipi delle colonne, e all'interno bisogna chiarira il tipo di dati, usando include=np.number
+                                                                      # e .sum(axis=1) fa la somma orizzontale cioè in base a ogni riga, invece .sum(axis=0) fa la somma per ogni colonna   
         return df
 
     def visualize_plot(self, df_in: pd.DataFrame) -> None:        
         """Crea e visualizza un Line plot"""
-        df = df_in.reset_index(drop=True).copy()
-        df.index = df['Country']  
+        df = df_in.reset_index(drop=True).copy() # drop=True non conserva l'indice vecchio come colonna, indice numerico sequenziale da 0
+                                                # poi fa una copia ( copy()) con gli indici resettati
+        df.index = df['Country'] # adesso la colonna Country diventa quella degli indici (non più 0, 1, 2, ...)
         
         # Andamento fatturato totale sui trent'anni
-        rev_tot = df.loc[:, self.years].sum(axis=0)
+        rev_tot = df.loc[:, self.years].sum(axis=0) # seleziona tutte le righe (:) ma solo le colonne indicate in self.years e fa la somma verticale, per colonna (sum(axis=0))
         rev_tot.plot(kind="line")       
         title = "Fatturato totale - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale - ds"
         ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
@@ -49,38 +51,47 @@ class DataPipeline:
         plt.ylabel(ylabel)
         plt.xlabel('Anni') 
 
-        # # # ESERCIZI
-        # # Andamento fatturato solo da diverse nazioni (es. Italy, France, Germany)
-        # big_eu =  df.loc[['Italy','France','Germany'] , self.years]
-        # plt.subplots(figsize=(20, 12))
-        # big_eu.transpose().plot()
-        # # Andamento fatturato per decadi (es. 95-04, 05-14, 15-24)
-        # df_first_dec = df.loc[:, self.first_decade]
-        # # print(df_first_dec)
-        # df_first_dec.rename(columns={'1995':'1', '1996':'2', '1997':'3', '1998':'4', '1999':'5', '2000':'6',
-        #                    '2001':'7', '2002':'8', '2003':'9', '2004':'10'}, inplace=True)
-        # rev_first_dec = df_first_dec.sum(axis=0)
-        # # print(rev_first_dec)
-        # df_second_dec = df.loc[:, self.second_decade]
-        # df_second_dec.rename(columns={'2005':'1', '2006':'2', '2007':'3', '2008':'4', '2009':'5', '2010':'6',
-        #                    '2011':'7', '2012':'8', '2013':'9', '2014':'10'}, inplace=True)
-        # rev_second_dec = df_second_dec.sum(axis=0)
-        # df_third_dec = df.loc[:, self.third_decade]   
-        # df_third_dec.rename(columns={'2015':'1', '2016':'2', '2017':'3', '2018':'4', '2019':'5', '2020':'6',
-        #                    '2021':'7', '2022':'8', '2023':'9', '2024':'10'}, inplace=True)
-        # rev_third_dec = df_third_dec.sum(axis=0)
-        # data = {"1995-2004":rev_first_dec, "2005-2014":rev_second_dec, "2015-2024":rev_third_dec} 
-        # new_df = pd.concat(data, axis=1)
-        # # print(new_df)
-        # # rev_first_dec.plot(kind="line", color='green')
-        # # rev_second_dec.plot(kind="line", color='orange')
-        # # rev_third_dec.plot(kind="line", color='red')
-        # new_df.plot(kind="line")
-        # title = "Fatturato totale - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale - ds"
-        # ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
-        # plt.title(title)
-        # plt.ylabel(ylabel)
-        # plt.xlabel('Anni')   
+        # # ESERCIZI
+        # Andamento fatturato solo da diverse nazioni (es. Italy, France, Germany)
+        big_eu =  df.loc[['Italy','France','Germany'] , self.years]
+        plt.subplots(figsize=(20, 12))
+        # Crea una nuova figura di Matplotlib con dimensioni larghe e alte (20x12 pollici). 
+        # Non assegna il risultato a variabili (fig, ax = plt.subplots()), quindi userà gli assi di default.
+        # Utile per grafici grandi e leggibili, specialmente con più linee o etichette lunghe.
+        big_eu.transpose().plot() # traspose() inverte righe e colonne 
+
+
+        # Andamento fatturato per decadi (es. 95-04, 05-14, 15-24)
+        df_first_dec = df.loc[:, self.first_decade]
+        # print(df_first_dec)
+        df_first_dec.rename(columns={'1995':'1', '1996':'2', '1997':'3', '1998':'4', '1999':'5', '2000':'6',
+                           '2001':'7', '2002':'8', '2003':'9', '2004':'10'}, inplace=True)
+        rev_first_dec = df_first_dec.sum(axis=0)
+        # print(rev_first_dec)
+        df_second_dec = df.loc[:, self.second_decade]
+        df_second_dec.rename(columns={'2005':'1', '2006':'2', '2007':'3', '2008':'4', '2009':'5', '2010':'6',
+                           '2011':'7', '2012':'8', '2013':'9', '2014':'10'}, inplace=True)
+        rev_second_dec = df_second_dec.sum(axis=0)
+        df_third_dec = df.loc[:, self.third_decade]   
+        df_third_dec.rename(columns={'2015':'1', '2016':'2', '2017':'3', '2018':'4', '2019':'5', '2020':'6',
+                           '2021':'7', '2022':'8', '2023':'9', '2024':'10'}, inplace=True)
+        rev_third_dec = df_third_dec.sum(axis=0)
+        data = {"1995-2004":rev_first_dec, "2005-2014":rev_second_dec, "2015-2024":rev_third_dec} 
+        new_df = pd.concat(data, axis=1)
+        # pd.concat unisce oggetti Pandas (DataFrame o Series) lungo un asse.
+        # axis=1 → unisce colonne (orizzontale), quindi ogni Series diventa una colonna nel nuovo DataFrame.
+
+        # print(new_df)
+
+        # rev_first_dec.plot(kind="line", color='green')
+        # rev_second_dec.plot(kind="line", color='orange')
+        # rev_third_dec.plot(kind="line", color='red')
+        new_df.plot(kind="line")
+        title = "Fatturato totale - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale - ds"
+        ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
+        plt.title(title)
+        plt.ylabel(ylabel)
+        plt.xlabel('Anni')   
 
         plt.savefig(self.config.output_plot_line)
         plt.show()
@@ -94,7 +105,7 @@ class DataPipeline:
         df.index = df['Country']
 
         # Andamento fatturato da diversi paesi       
-        plt.subplots(figsize=(10, 6))  
+        plt.subplots(figsize=(10, 6))  # crea la figura che gli assi una volta. è più comodo quando si vuole creare un grafico con più sottografici
         br = df.loc['Brazil', self.years]
         br.plot(kind='bar', color='red')
         china = df.loc['China', self.years]
@@ -103,32 +114,51 @@ class DataPipeline:
         plt.ylabel('Fatturato')
         plt.xlabel('Anni')
 
-        # # # ESERCIZI
-        # # Mostra andamento fatturato da Cina ordinato in senso decrescente
-        # china = df.loc['China', self.years]
-        # # print(china)
-        # china.sort_values(ascending=False, axis=0, inplace=True)
-        # # print(china)
-        # china.plot(kind='bar', color='blue')
-        # plt.title('Fatturato da Cina in senso decrescente')
-        # plt.ylabel('Fatturato')
-        # plt.xlabel('Anni')
+        # # ESERCIZI
+        # Mostra andamento fatturato da Cina ordinato in senso decrescente
+        china = df.loc['China', self.years]
+        # print(china)
+        china.sort_values(ascending=False, axis=0, inplace=True)
+        # print(china)
+        china.plot(kind='bar', color='blue')
+        plt.title('Fatturato da Cina in senso decrescente')
+        plt.ylabel('Fatturato')
+        plt.xlabel('Anni')
         
         plt.savefig(self.config.output_plot_bar)        
         plt.show()
         plt.close() 
        
-        print("      -Bar chart salvato e mostrato")        
+        print("      -Bar chart salvato e mostrato")       
+
+        # Fatturato Brasile
+        brazil = df.loc['Brazil', self.years]
+        print(brazil)
+        # ordine crescente
+        brazil.sort_values(ascending=True, axis=0, inplace=True)
+        brazil.plot(kind='bar', color='orange')
+        plt.title('Fatturato Brasile in senso crescente')
+        plt.ylabel('Fatturato')
+        plt.xlabel('Anni')
+
+        plt.savefig(self.config.output_plot_bar)
+        plt.show()
+        plt.close()
+
         
     def visualize_pie(self, df_in: pd.DataFrame) -> None:        
         """Crea e visualizza un Pie chart"""
+        # reset_index(drop=True):
+        # Resetta l’indice del DataFrame a 0, 1, 2…
+        # drop=True → evita di salvare il vecchio indice come colonna aggiuntiva.
+        # .copy(): Crea una copia indipendente di df_in, così non modifici il DataFrame originale (df_in).
         df = df_in.reset_index(drop=True).copy()
         df_region_95 = df.groupby(['Region']).agg({'1995': 'sum'})
         # print(df_region_95.shape)
         # colors_list = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'lightgreen'] # OCCHIO che sia  
         # print(len(colors_list))
         
-        plt.figure(figsize=(20, 10))
+        plt.figure(figsize=(20, 10)) # crea solo la figura (la cornice del grafico)
         df_region_95['1995'].plot(kind='pie',
                             autopct='%1.1f%%',
                             startangle=90,
@@ -141,68 +171,68 @@ class DataPipeline:
         plt.axis('equal')
         plt.legend(labels=df_region_95.index, loc='lower left') 
         
-        # # # ESERCIZI
-        # # Migliora l'aspetto della torta per renderla più leggibile (studia API)
-        # if self.config.csv_path.__contains__("cl"):
-        #     colors_list = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'lightgreen']  
-        #     explode_list = [0, 0, 0.05, 0.05, 0.05]       
-        #     df_region_95['1995'].plot(kind='pie',
-        #                                 autopct='%1.1f%%', 
-        #                                 startangle=90,    
-        #                                 shadow=True,       
-        #                                 labels=None,        
-        #                                 pctdistance=1.07, 
-        #                                 colors=colors_list,
-        #                                 explode=explode_list 
-        #                                 )
-        #     plt.title('Percentuale fatturato per regione geografica (1995) - cl')
-        #     plt.ylabel("")
-        #     plt.axis('equal')
-        #     plt.legend(labels=df_region_95.index, loc='lower left') 
-        # else:
-        #     colors_list = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'lightgreen', 'tan']  
-        #     explode_list = [0.05, 0, 0, 0, 0.05, 0.05]       
-        #     df_region_95['1995'].plot(kind='pie',
-        #                                 autopct='%1.1f%%', 
-        #                                 startangle=90,    
-        #                                 shadow=True,       
-        #                                 labels=None,        
-        #                                 pctdistance=1.07, 
-        #                                 colors=colors_list,
-        #                                 explode=explode_list 
-        #                                 )
-        #     plt.title('Percentuale fatturato per regione geografica (1995) - ds')
-        #     plt.ylabel("")
-        #     plt.axis('equal')
-        #     plt.legend(labels=df_region_95.index, loc='lower left') 
-        # # Inserisci in una stessa figura la torta per il 1995 e quella per il 2024 per osservare agevolmente le differenze 
-        # plt.figure(figsize=(26, 13))
-        # df_region_24 = df.groupby(['Region']).agg({'2024': 'sum'})
-        # plt.subplot(1, 2, 1)
-        # df_region_95['1995'].plot(kind='pie',
-        #                     autopct='%1.1f%%',
-        #                     startangle=90,
-        #                     labels=None,
-        #                     pctdistance=1.10,
-        #                     shadow=False,
-        #                     )
-        # plt.title('Percentuale fatturato per regione geografica (1995)')
-        # plt.ylabel("")
-        # plt.axis('equal')
-        # plt.legend(labels=df_region_95.index, loc='lower left') 
+        # # ESERCIZI
+        # Migliora l'aspetto della torta per renderla più leggibile (studia API)
+        if self.config.csv_path.__contains__("cl"):
+            colors_list = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'lightgreen']  
+            explode_list = [0, 0, 0.05, 0.05, 0.05]       
+            df_region_95['1995'].plot(kind='pie',
+                                        autopct='%1.1f%%', 
+                                        startangle=90,    
+                                        shadow=True,       
+                                        labels=None,        
+                                        pctdistance=1.07, 
+                                        colors=colors_list,
+                                        explode=explode_list 
+                                        )
+            plt.title('Percentuale fatturato per regione geografica (1995) - cl')
+            plt.ylabel("")
+            plt.axis('equal')
+            plt.legend(labels=df_region_95.index, loc='lower left') 
+        else:
+            colors_list = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'lightgreen', 'tan']  
+            explode_list = [0.05, 0, 0, 0, 0.05, 0.05]       
+            df_region_95['1995'].plot(kind='pie',
+                                        autopct='%1.1f%%', 
+                                        startangle=90,    
+                                        shadow=True,       
+                                        labels=None,        
+                                        pctdistance=1.07, 
+                                        colors=colors_list,
+                                        explode=explode_list 
+                                        )
+            plt.title('Percentuale fatturato per regione geografica (1995) - ds')
+            plt.ylabel("")
+            plt.axis('equal')
+            plt.legend(labels=df_region_95.index, loc='lower left') 
+        # Inserisci in una stessa figura la torta per il 1995 e quella per il 2024 per osservare agevolmente le differenze 
+        plt.figure(figsize=(26, 13))
+        df_region_24 = df.groupby(['Region']).agg({'2024': 'sum'})
+        plt.subplot(1, 2, 1)
+        df_region_95['1995'].plot(kind='pie',
+                            autopct='%1.1f%%',
+                            startangle=90,
+                            labels=None,
+                            pctdistance=1.10,
+                            shadow=False,
+                            )
+        plt.title('Percentuale fatturato per regione geografica (1995)')
+        plt.ylabel("")
+        plt.axis('equal')
+        plt.legend(labels=df_region_95.index, loc='lower left') 
         
-        # plt.subplot(1, 2, 2)
-        # df_region_24['2024'].plot(kind='pie',
-        #                     autopct='%1.1f%%', 
-        #                     startangle=90,     
-        #                     labels=None,
-        #                     pctdistance=1.07,
-        #                     shadow=False,
-        #                     )
-        # plt.title('Percentuale fatturato per regione geografica (2024)')
-        # plt.ylabel("")
-        # plt.axis('equal')
-        # plt.legend(labels=df_region_24.index, loc='lower left') 
+        plt.subplot(1, 2, 2)
+        df_region_24['2024'].plot(kind='pie',
+                            autopct='%1.1f%%', 
+                            startangle=90,     
+                            labels=None,
+                            pctdistance=1.07,
+                            shadow=False,
+                            )
+        plt.title('Percentuale fatturato per regione geografica (2024)')
+        plt.ylabel("")
+        plt.axis('equal')
+        plt.legend(labels=df_region_24.index, loc='lower left') 
         
         plt.savefig(self.config.output_plot_pie)        
         plt.show()
@@ -214,27 +244,27 @@ class DataPipeline:
         """Crea e visualizza un Area plot"""
         df = df_in.reset_index(drop=True).copy()
         
-        # df.sort_values(['Total'], ascending=False, axis=0, inplace=True)
-        # df.index = df['Country']
-        # df_top5 = df.head(5)
-        # print(df_top5)
-        # df_top5 = df_top5[self.years].transpose() 
-        # # print(df_top5.head())
+        df.sort_values(['Total'], ascending=False, axis=0, inplace=True)
+        df.index = df['Country']
+        df_top5 = df.head(5)
+        print(df_top5)
+        df_top5 = df_top5[self.years].transpose() 
+        # print(df_top5.head())
         
-        # # SOLUZIONE "pandas only"
-        # df_top5.plot(kind="area", figsize=(14, 8)).get_figure().savefig(self.config.output_plot_area)
+        # SOLUZIONE "pandas only"
+        df_top5.plot(kind="area", figsize=(14, 8)).get_figure().savefig(self.config.output_plot_area)
         
-        # # SOLUZIONE "pandas+Artist"
-        # # ax = df_top5.plot(kind='area', alpha=0.35, figsize=(20, 9))
-        # # ax = df_top5.plot(kind='area', alpha=0.10, stacked=False, figsize=(20, 9))
-        # ax = df_top5.plot(kind='line', figsize=(20, 9))
-        # # Notazione compatta if-then-else: value_if_true if condition else value_if_false        
-        # title = "Fatturato: primi 5 paesi per importo totale - cl" if self.config.csv_path.__contains__("cl") else "Fatturato: primi 5 paesi per importo totale - ds"
-        # ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
-        # ax.set_title(title)
-        # ax.set_ylabel(ylabel)
-        # ax.set_xlabel('Anni')
-        # ax.figure.savefig(self.config.output_plot_area) 
+        # SOLUZIONE "pandas+Artist"
+        # ax = df_top5.plot(kind='area', alpha=0.35, figsize=(20, 9))
+        # ax = df_top5.plot(kind='area', alpha=0.10, stacked=False, figsize=(20, 9))
+        ax = df_top5.plot(kind='line', figsize=(20, 9))
+        # Notazione compatta if-then-else: value_if_true if condition else value_if_false        
+        title = "Fatturato: primi 5 paesi per importo totale - cl" if self.config.csv_path.__contains__("cl") else "Fatturato: primi 5 paesi per importo totale - ds"
+        ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel('Anni')
+        ax.figure.savefig(self.config.output_plot_area) 
         
         # # ESERCIZI
         # 1) Mostra il fatturato cumulativo anno per anno nei 30 anni coi diversi contributi SOLO delle prime 
@@ -254,6 +284,10 @@ class DataPipeline:
         print(df_sr_3_years_top5)
         df_sr_top5 = df_sr[df_sr.index.isin(df_sr_3_years_top5.index)]
         print(df_sr_top5)
+        # df_sr → DataFrame aggregato su tutti gli anni (self.years)
+        # .isin(df_sr_3_years_top5.index) → crea un filtro sulle righe il cui indice (SubRegion) è tra i top 5
+        # df_sr_top5 → DataFrame con tutte le colonne originali degli anni, ma solo per le top 5 SubRegion.
+
         df_sr_top5 = df_sr_top5.transpose()
         df_sr_top5.plot(kind="area", figsize=(14, 8))
         # df_sr_top5.plot(kind='area', alpha=0.10, stacked=False, figsize=(20, 9))
@@ -274,23 +308,24 @@ class DataPipeline:
         """Crea e visualizza un Istogramma"""
         df = df_in.reset_index(drop=True).copy()
         
-        # print(df.sort_values(['2024'], ascending=False)[['Country', '2024']])
-        # count, bin_edges = np.histogram(df['2024'], bins=5)        
-        # print(count) # conteggio frequenze, mumero paesi in ogni intervallo 
-        # print(bin_edges) # intervalli (bins), default = 10, 
-        # #                  # dim di ogni bin = (df['2024'].max() - df['2024'].min()) / numero intervalli (bins)
-        # # df['2024'].plot(kind='hist', figsize=(8, 5))
-        # df['2024'].plot(kind='hist', figsize=(8, 5), xticks=bin_edges, color='green')
+        print(df.sort_values(['2024'], ascending=False)[['Country', '2024']]) # ordino in base ai valori della colonna 2024 (in modo decrescente)
+                                                                            # dopo aver ordinato, seleziono solo queste due colonne (country, 2024) del DF
+        count, bin_edges = np.histogram(df['2024'], bins=5)        
+        print(count) # conteggio frequenze, numero paesi in ogni intervallo 
+        print(bin_edges) # intervalli (bins), default = 10, 
+        #                  # dim di ogni bin = (df['2024'].max() - df['2024'].min()) / numero intervalli (bins)
+        # df['2024'].plot(kind='hist', figsize=(8, 5))
+        df['2024'].plot(kind='hist', figsize=(8, 5), xticks=bin_edges, color='green')
               
-        # fig, ax = plt.subplots(figsize=(8, 5))
-        # bars = ax.hist(df['2024'], bins=10, color='green', edgecolor='white')
-        # # print(type(bars))
-        # # print(bars)
-        # print(bars[1])
-        # print(bars[2])
-        # plt.bar_label(bars[2], fontsize=10, color='navy')
-        # # plt.xticks(bars[1])
-        # plt.xticks(bars[1], rotation=45)
+        fig, ax = plt.subplots(figsize=(8, 5))
+        bars = ax.hist(df['2024'], bins=10, color='green', edgecolor='white')
+        # print(type(bars))
+        # print(bars)
+        print(bars[1])
+        print(bars[2])
+        plt.bar_label(bars[2], fontsize=10, color='navy')
+        # plt.xticks(bars[1])
+        plt.xticks(bars[1], rotation=45)
         
         # # ESERCIZI
         # 1) Scrivere il codice per generare gli istogrammi delle slide 13, 14, 15 in IA.1_Lezione2.3.pdf 
@@ -325,34 +360,55 @@ class DataPipeline:
         
     def visualize_boxplot(self, df_in: pd.DataFrame) -> None:
         """Crea e visualizza un Box plot"""
+        # Ripristina l’indice numerico da 0,1,2… eliminando quello originale, e crea una copia del DataFrame
         df = df_in.reset_index(drop=True).copy() 
 
-        # df.set_index('Country', inplace=True)
-        # country_name = "India"
-        # country = df.loc[country_name, self.years]
+        df.set_index('Country', inplace=True)
+        # Imposta la colonna 'Country' come nuovo indice del DataFrame, sostituendo l’indice numerico
+
+        country_name = "India"
+        # Definisce il Paese di interesse come stringa, per selezionare la riga corrispondente
+
+        country = df.loc[country_name, self.years]
+        # Seleziona la riga del Paese 'India' per le colonne specificate in self.years
+        # Restituisce una Series con gli anni come indice e i valori di India come dati
+        print(country)
+        
+        country = pd.DataFrame(df.loc[country_name, self.years])
+        # Converte la Series in un DataFrame, dove gli anni diventano l’indice
+        # e i valori di India diventano l’unica colonna
+
+        country[[country_name]] = country[[country_name]].astype("float")       
         # print(country)
-        # country = pd.DataFrame(df.loc[country_name, self.years])
-        # country[[country_name]] = country[[country_name]].astype("float")       
-        # # print(country)
-        # print()
-        # print(country.describe())
-        # country = country.reset_index()
-        # country_outlier_up_value = country.describe().loc['75%'][country_name] + 1.5 * (country.describe().loc['75%'][country_name] - country.describe().loc['25%'][country_name])
-        # print()
-        # print("Q3 + 1.5*IQR = " + str(country_outlier_up_value))
-        # print()
-        # print("Upper whisker (baffo superiore): " + str(country[country[country_name] < country_outlier_up_value][country_name].max()))
-        # print()
-        # country.plot(kind='box', figsize=(10, 6))
-        # title = "Fatturato " + str(country_name) + " - cl" if self.config.csv_path.__contains__("cl") else "Fatturato " + str(country_name) + " - ds"
-        # plt.title(title)
+        print()
+        print(country.describe())
+        country = country.reset_index()
+        # Q3 + 1.5 * IQR (Q3-Q1)
+        country_outlier_up_value = country.describe().loc['75%'][country_name] + 1.5 * (country.describe().loc['75%'][country_name] - country.describe().loc['25%'][country_name])
+        print()
+        print("Q3 + 1.5*IQR = " + str(country_outlier_up_value))
+        print()
+        # Stampa il "baffo superiore" del boxplot per il Paese specificato, 
+        # cioè il valore massimo della colonna che non è considerato outlier superiore (inferiore a country_outlier_up_value)
+        print("Upper whisker (baffo superiore): " + str(country[country[country_name] < country_outlier_up_value][country_name].max()))
+        print()
+        country.plot(kind='box', figsize=(10, 6))
+        title = "Fatturato " + str(country_name) + " - cl" if self.config.csv_path.__contains__("cl") else "Fatturato " + str(country_name) + " - ds"
+        plt.title(title)
         
         df_top = df.sort_values(['Total'], ascending=False, axis=0).head(15)
-        print(df_top["Country"])
+        print(df_top["Country"]) # errore, 
+        print(df_top.reset_index()[["Country"]]) # Restituisce un DataFrame con una sola colonna 'Country', contenente i top 15 Paesi
+
         df_first_dec = df_top.loc[:, self.first_decade].sum(axis=1) 
+        # Somma i valori delle colonne della prima decade (ad es. anni 1995-2004) per ciascuna riga di df_top
+        # axis=1 indica che la somma è **orizzontale**, cioè lungo le colonne
         df_second_dec = df_top.loc[:, self.second_decade].sum(axis=1) 
         df_third_dec = df_top.loc[:, self.third_decade].sum(axis=1)         
         new_df = pd.DataFrame({'95-04': df_first_dec, '05-14': df_second_dec, '15-24':df_third_dec}) 
+        # Crea un nuovo DataFrame con 3 colonne, una per ciascuna decade, usando le somme calcolate
+        # L’indice di new_df è lo stesso di df_top, di solito i nomi dei Paesi
+
         print(new_df)
         print(new_df.describe())
         # # print(new_df.head())
@@ -373,9 +429,13 @@ class DataPipeline:
         plt.title(title)
        
         new_df = new_df.reset_index()
+        # Ripristina l’indice numerico nel DataFrame new_df e sposta l’indice precedente (Paese) in una colonna chiamata 'index'
         print(new_df)
         filter_series_95_04 = new_df[new_df['95-04'] > outlier_up_value_first_dec]["index"]
+        # Crea una Series con i nomi dei Paesi che hanno valori della decade 1995-2004 maggiori del valore di soglia per outlier
         filtered_df_95_04 = df_top.loc[df_top.index.isin(filter_series_95_04.values)][["Country"]]
+        # Seleziona dal DataFrame df_top solo le righe corrispondenti ai Paesi considerati outlier nella decade 1995-2004
+        # Restituisce solo la colonna 'Country'
         print(">>> Outliers 95-04")
         print(filtered_df_95_04)
         filter_series_05_14 = new_df[new_df['05-14'] > outlier_up_value_second_dec]["index"]
@@ -418,18 +478,28 @@ class DataPipeline:
             return df
                      
         """Crea e visualizza uno Scatter plot"""
-        df = df_in.reset_index(drop=True).copy()
+        df = df_in.reset_index(drop=True).copy() 
         
         df_tot = pd.DataFrame(df[self.years].sum(axis=0))
+        # Somma **tutti i valori per ciascun anno** (axis=0 somma verticalmente sulle righe)
+        # Risultato: una Series con gli anni come indice e il totale come valori
+        # Viene poi convertita in un DataFrame
+
         df_tot.index = map(int, df_tot.index)
+        # Converte gli indici (gli anni, che potrebbero essere stringhe) in interi
+
         df_tot.reset_index(inplace = True)
+        # Trasforma l’indice (gli anni) in una colonna chiamata 'index', creando un indice numerico standard
+
         df_tot.columns = ['year', 'total']
+        # Rinomina le colonne del DataFrame:
+        # 'year' per gli anni e 'total' per la somma dei valori di ciascun anno
         # print(df_tot)
 
         # SOLUZIONE 1        
         plt.figure(figsize=(10, 6))
-        # df_tot.plot(kind='scatter', x='year', y='total', color='darkblue')
-        plt.scatter(df_tot['year'], df_tot['total'], color='darkblue')
+        # df_tot.plot(kind='scatter', x='year', y='total', color='darkblue') -- metodo con Pandas [DataFrame.plot(kind="...", x= ..., y=..., color=...)]
+        plt.scatter(df_tot['year'], df_tot['total'], color='darkblue') # metodo matplotlib [plot.scatter(df['col'], df['col'], color='...')]
         title = "Fatturato totale per anno [1995 - 2024] - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale per anno [1995 - 2024] - ds"        
         ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
         plt.title(title) 
@@ -437,39 +507,61 @@ class DataPipeline:
         plt.ylabel(ylabel)
         plt.xticks(rotation=45)
 
-        # # SOLUZIONE 2 (Uso Artist Layer)  
-        # fig, ax = plt.subplots()
-        # # ax = df_tot.plot(kind='scatter', x='year', y='total', color='darkblue')
-        # ax.scatter(df_tot['year'], df_tot['total'], color='darkblue')
-        # title = "Fatturato totale per anno [1995 - 2024] - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale per anno [1995 - 2024] - ds"        
-        # ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
-        # ax.set_title(title)
-        # ax.set_xlabel('Anno')
-        # ax.set_ylabel(ylabel)  
-        # plt.xticks(rotation=45)
+        # SOLUZIONE 2 (Uso Artist Layer)  
+        fig, ax = plt.subplots()
+        # ax = df_tot.plot(kind='scatter', x='year', y='total', color='darkblue')
+        ax.scatter(df_tot['year'], df_tot['total'], color='darkblue')
+        title = "Fatturato totale per anno [1995 - 2024] - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale per anno [1995 - 2024] - ds"        
+        ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
+        ax.set_title(title)
+        ax.set_xlabel('Anno')
+        ax.set_ylabel(ylabel)  
+        plt.xticks(rotation=45)
         
-        # # SOLUZIONE 3 (Uso Seaborn)  
-        # df_tot = add_columns(df_tot)   
-        # # print(df_tot) 
-        # plt.figure(figsize=(10, 6))
-        # sns.scatterplot(data=df_tot, x="year", y="total", hue="shift", size="employees")        
-        # title = "Fatturato totale per anno [1995 - 2024] - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale per anno [1995 - 2024] - ds"        
-        # ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
-        # plt.title(title) 
-        # plt.xlabel('Anno')
-        # plt.ylabel(ylabel)
-        # plt.xticks(rotation=45)
+        # SOLUZIONE 3 (Uso Seaborn)  
+        df_tot = add_columns(df_tot)   
+        # print(df_tot) 
+        plt.figure(figsize=(10, 6))
+        sns.scatterplot(data=df_tot, x="year", y="total", hue="shift", size="employees")  
+        # Usa Seaborn per creare uno scatter plot:
+        # - x="year": asse X rappresenta gli anni
+        # - y="total": asse Y rappresenta il totale per anno
+        # - hue="shift": colora i punti in base alla categoria 'shift'
+        # - size="employees": dimensione dei punti proporzionale al numero di dipendenti
+        # Risultato: un grafico informativo dove posizione, colore e dimensione dei punti rappresentano variabili diverse      
         
-        # # Fit linear regressions (mostrare con SOLUZIONE 1) 
-        # x = df_tot['year']
-        # y = df_tot['total']   
-        # coefficients = np.polyfit(x, y, 1)
-        # p = np.poly1d(coefficients)
-        # plt.plot(x, p(x), color='red')        
-        # plt.rcParams['text.usetex'] = False
-        # equation = compute_equation(coefficients)
-        # plt.annotate(equation, xy=(0.02, 0.95), xycoords='axes fraction', fontsize=6)
-        # # ax.annotate(equation, xy=(0.05, 0.95), fontsize=14)          
+        title = "Fatturato totale per anno [1995 - 2024] - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale per anno [1995 - 2024] - ds"        
+        ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
+        plt.title(title) 
+        plt.xlabel('Anno')
+        plt.ylabel(ylabel)
+        plt.xticks(rotation=45)
+        
+        # Fit linear regressions (mostrare con SOLUZIONE 1) 
+        x = df_tot['year']
+        y = df_tot['total']   
+        coefficients = np.polyfit(x, y, 1)
+        # Applica una regressione lineare di grado 1 (linea retta) usando numpy
+        # Restituisce i coefficienti [slope, intercept] della retta di best fit 
+
+        p = np.poly1d(coefficients)
+        # Crea un oggetto polinomiale p(x) usando i coefficienti calcolati
+        # In questo caso p(x) = slope * x + intercept
+
+        plt.plot(x, p(x), color='red')   
+        # Disegna la linea di regressione sul grafico corrente
+        # Colore rosso per evidenziare la retta
+
+        plt.rcParams['text.usetex'] = False
+        # Disabilita l'uso di LaTeX per il rendering del testo su matplotlib
+        # Utile per evitare errori se non si ha LaTeX installato
+
+        equation = compute_equation(coefficients)
+        # Chiama una funzione che trasforma i coefficienti in una stringa leggibile
+        # Ad esempio "y = 2.5x + 10"
+
+        plt.annotate(equation, xy=(0.02, 0.95), xycoords='axes fraction', fontsize=6)
+        # ax.annotate(equation, xy=(0.05, 0.95), fontsize=14)          
             
         plt.savefig(self.config.output_plot_scatter)
         plt.show()
@@ -479,51 +571,51 @@ class DataPipeline:
 
     # # # ESERCIZI
     # # Aggiungi alla run_pipeline la chiamata ad una funzione "visualize_data" che generi un'unica immagine con plot line, bar chart e pie chart(s) 
-    # def visualize_data(self, df_in: pd.DataFrame) -> None:
-    #    """Crea e salva visualizzazioni"""
-    #    df = df_in.reset_index(drop=True).copy()
+    def visualize_data(self, df_in: pd.DataFrame) -> None:
+       """Crea e salva visualizzazioni"""
+       df = df_in.reset_index(drop=True).copy()
        
-    #    plt.figure(figsize=(30, 15))
+       plt.figure(figsize=(30, 15))
          
-    #    plt.subplot(1, 3, 1)
-    #    df.index = df['Country']  
-    #    # Andamento fatturato totale sui trent'anni
-    #    rev_tot = df.loc[:, self.years].sum(axis=0)
-    #    rev_tot.plot(kind="line")       
-    #    title = "Fatturato totale - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale - ds"
-    #    ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
-    #    plt.title(title)
-    #    plt.ylabel(ylabel)
-    #    plt.xlabel('Anni')      
+       plt.subplot(1, 3, 1)
+       df.index = df['Country']  
+       # Andamento fatturato totale sui trent'anni
+       rev_tot = df.loc[:, self.years].sum(axis=0)
+       rev_tot.plot(kind="line")       
+       title = "Fatturato totale - cl" if self.config.csv_path.__contains__("cl") else "Fatturato totale - ds"
+       ylabel = "milioni di USD" if self.config.csv_path.__contains__("cl") else "USD"
+       plt.title(title)
+       plt.ylabel(ylabel)
+       plt.xlabel('Anni')      
            
-    #    plt.subplot(1, 3, 2)
-    #    df.index = df['Country']  
-    #    china = df.loc['China', self.years]
-    #    china.plot(kind='bar', color='blue')
-    #    br = df.loc['Brazil', self.years]
-    #    br.plot(kind='bar', color='red')
-    #    plt.title('Fatturato da Brasile e Cina - Anni: 1995-2024')
-    #    plt.ylabel('Fatturato')
-    #    plt.xlabel('Anni')
+       plt.subplot(1, 3, 2)
+       df.index = df['Country']  
+       china = df.loc['China', self.years]
+       china.plot(kind='bar', color='blue')
+       br = df.loc['Brazil', self.years]
+       br.plot(kind='bar', color='red')
+       plt.title('Fatturato da Brasile e Cina - Anni: 1995-2024')
+       plt.ylabel('Fatturato')
+       plt.xlabel('Anni')
            
-    #    plt.subplot(1, 3, 3)
-    #    df_region_95 = df.groupby(['Region']).agg({'1995': 'sum'})
-    #    df_region_95['1995'].plot(kind='pie',
-    #                   autopct='%1.1f%%',
-    #                   startangle=90,
-    #                   labels=None,
-    #                   pctdistance=1.07,
-    #                   shadow=False,
-    #                   )
-    #    plt.title('Percentuale fatturato per regione geografica (1995)')
-    #    plt.ylabel("")
-    #    plt.axis('equal')
-    #    plt.legend(labels=df_region_95.index, loc='lower left') 
+       plt.subplot(1, 3, 3)
+       df_region_95 = df.groupby(['Region']).agg({'1995': 'sum'})
+       df_region_95['1995'].plot(kind='pie',
+                      autopct='%1.1f%%',
+                      startangle=90,
+                      labels=None,
+                      pctdistance=1.07,
+                      shadow=False,
+                      )
+       plt.title('Percentuale fatturato per regione geografica (1995)')
+       plt.ylabel("")
+       plt.axis('equal')
+       plt.legend(labels=df_region_95.index, loc='lower left') 
                 
-    #    plt.tight_layout()           
-    #    plt.savefig(self.config.output_plot_figure)
-    #    plt.show()
-    #    plt.close()
+       plt.tight_layout()      
+       plt.savefig(self.config.output_plot_figure)
+       plt.show()
+       plt.close()
                
     def run_pipeline(self) -> pd.DataFrame:
         """Esegue la pipeline completa"""
